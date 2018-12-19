@@ -21,6 +21,8 @@ def is_login():
 @app.before_request
 def check_user():
     if is_login():
+        if request.path == '/login':
+            return redirect(url_for('index'))
         return
     if request.path == '/login' or request.path.startswith('/static/'):
         return
