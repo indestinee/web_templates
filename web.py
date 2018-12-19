@@ -27,8 +27,6 @@ def check_user():
     return redirect(url_for('login'))
 
 
-
-
 def html(html_name='index.html', **kwargs):
     return render_template(
         html_name,
