@@ -9,6 +9,9 @@ __tables__ = [{
             }, {
                 "key": "value",
                 "db_type": "BLOB",
+            }, {
+                "key": "valid",
+                "db_type": "FLOAT",
             }
         ]
     }, {
@@ -23,8 +26,17 @@ __tables__ = [{
                 'key': 'password',
                 'db_type': 'TEXT NOT NULL',
             }, {
-                'key': 'last_login',
+                'key': 'nickname',
                 'db_type': 'TEXT',
+            }, {
+                'key': 'code',
+                'db_type': 'TEXT',
+            }, {
+                'key': 'history',
+                'db_type': 'BLOB',
+            }, {
+                'key': 'level',
+                'db_type': 'INTEGER',
             }
         ]
     }
