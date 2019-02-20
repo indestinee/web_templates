@@ -4,7 +4,7 @@
 <link href="/static/css/signup.css" rel="stylesheet">
 {% endblock %}
 {% block form %}
-<form class="form-signin" actionn="servlet" method="post" onsubmit="return submit_form();">
+<form class="form-signin" action="servlet" method="post" onsubmit="return submit_form();">
     <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
     <label for="nickname" class="sr-only">Nickname</label>
     <input type="nickname" name="nickname" id="nickname" class="form-control" placeholder="Nickname" required autofocus>
@@ -17,10 +17,10 @@
     <input type="code" name="code" id="code" class="form-control" placeholder="Invitation Code" autofocus>
     <div class="checkbox mb-3">
         <label>
-            <input type="checkbox" id="login" /> Sign In
+            <input type="checkbox" id="login" checked/> Sign In after Register
         </label>
     </div>
-    <div id="msg"></div>
+    <div id="msg" class="msg"></div>
     <button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
     <script>
         function submit_form() {
@@ -37,13 +37,32 @@
                 },
                 success: function(res) {
                     if (res.ok) {
-                        $("#msg").html('<div class="alert alert-success" role="alert">' + res.msg + '</div><div class="alert alert-info" role="alert">refresh in 2 seconds</div><meta http-equiv="refresh" content="2;url=/">')
+                        $("#msg").html(`
+                            <div class="alert alert-success" role="alert">
+                                ${res.msg}
+                            </div>
+                            <meta http-equiv="refresh" content="1;url=/">
+                        `);
                     } else {
-                        $("#msg").html('<div class="alert alert-danger" role="alert">' + res.msg + '</div>')
+                        $("#msg").html(`
+                            <div class="alert alert-danger" role="alert">
+                                ${res.msg}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        `);
                     }
                 },
                 error: function() {
-                    $("#msg").html('<div class="alert alert-danger" role="alert">cannot reach server, try again.</div>')
+                    $("#msg").html(`
+                        <div class="alert alert-danger" role="alert">
+                            cannot reach server, try again.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    `);
                 }
             });
             return false;

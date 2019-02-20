@@ -25,7 +25,7 @@ def check_password(password):
 def valid_code(code):
     return True
 
-def _login(username='', password='', remember=False):
+def _login(username='', password=''):
     res, msg = check_username(username)
     if not res:
         return False, '\'username\' ' + msg
@@ -63,19 +63,7 @@ def _login(username='', password='', remember=False):
         'ip': cur_ip,
     }
     return True, 'login successfully'
-
     
-
-@app.route('/login', methods=['POST', 'GET'])
-def login():
-    if request.method == 'POST':
-        data = request.form.to_dict()
-        status, msg = _login(**data)
-        return jsonify({'ok': True, 'msg': msg})
-
-    return html('login.html')
-
-
 def _register(username='', password='', nickname='', code='', login=False):
     if nickname == '':
         nickname = username
@@ -112,6 +100,22 @@ def _register(username='', password='', nickname='', code='', login=False):
         return True, 'register successfully' 
     status, msg = _login(username, password)
     return status, 'register successfully. ' + msg
+
+
+
+@app.route('/logout', methods=["GET"])
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        status, msg = _login(**data)
+        return jsonify({'ok': status, 'msg': msg})
+    return html('login.html')
+
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
