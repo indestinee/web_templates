@@ -10,12 +10,12 @@ app = Flask(__name__, static_folder=web_cfg._static_folder,\
 app.config['SECRET_KEY'] = web_cfg._secret_key
 
 allow_path = ['/login', '/register', '/favicon.ico', '/test']
-allow_prefix = ['/static/js', '/static/css']
+allow_prefix = ['/static/',]
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(os.path.join(app.root_path, 'static'),\
+            'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 def is_login():
     return 'login' in session
