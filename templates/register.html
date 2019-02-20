@@ -1,6 +1,7 @@
 {% extends 'sign_templates.html' %}
 {% block header %}
 <title>Sign Up</title>
+<link href="/static/css/signup.css" rel="stylesheet">
 {% endblock %}
 {% block form %}
 <form class="form-signin" actionn="servlet" method="post" onsubmit="return submit_form();">
@@ -13,11 +14,10 @@
     <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
 
     <label for="code" class="sr-only">Invitation Code</label>
-    <input type="code" name="code" id="code" class="form-control" placeholder="Invitation Code">
-    <br/>
+    <input type="code" name="code" id="code" class="form-control" placeholder="Invitation Code" autofocus>
     <div class="checkbox mb-3">
         <label>
-            <input type="checkbox" id="login" /> sign in
+            <input type="checkbox" id="login" /> Sign In
         </label>
     </div>
     <div id="msg"></div>
