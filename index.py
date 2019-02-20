@@ -2,7 +2,9 @@ from web import *
 
 @app.route('/')
 def index():
-    return 'hi'
+    return html(
+        'index.html',
+    )
 
 @app.route('/test')
 def test():

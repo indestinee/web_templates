@@ -38,7 +38,6 @@ def logout_all():
     session.clear()
     return redirect(url_for('login'))
 
-
 allow_path = ['/login', '/register', '/favicon.ico', '/test']
 allow_prefix = ['/static/js', '/static/css']
 
