@@ -4,6 +4,7 @@ from flask import Flask, render_template, redirect,\
 from web_config import web_cfg
 from utils import *
 from config import db
+from tools import *
 
 app = Flask(__name__, static_folder=web_cfg._static_folder,\
         static_url_path=web_cfg._static_url_path)

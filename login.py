@@ -1,112 +1,79 @@
 from web import *
 import re, pickle
 
-
-def encrypt(data):
-    return data
-
-
-re_normal = re.compile(r'^\w+$')
 re_all = re.compile(r'^.*$')
-def check_param(param, *, pattern=re_normal, min_len=6, max_len=32):
-    if len(param) < min_len or len(param) > max_len:
-        return False, 'length should be within [{}, {}]'.format(\
-                min_len, max_len)
-    if pattern.match(param):
-        return True, ''
-    return False, 'illegal charactor found'
-
-def check_username(username):
-    return check_param(username, pattern=re_normal, min_len=2, max_len=32)
-
-def check_password(password):
-    return check_param(password, pattern=re_all, min_len=6, max_len=32)
+re_normal = re.compile(r'^\w+$')
 
 def valid_code(code):
     return True
+    codes = [code['code'] for code in db.select('code', keys='code',\
+            limitation='valid>{}'.format(time.time()))]
+    return code in codes 
+
+def check_param(param, name, *, pattern=re_normal, min_len=6, max_len=32):
+    if len(param) < min_len or len(param) > max_len:
+        return False, '{}\'s length should be within [{}, {}].'.format(\
+                name, min_len, max_len)
+    if pattern.match(param): return True, ''
+    return False, 'Illegal charactor found!'
+
 
 def _login(username='', password=''):
-    res, msg = check_username(username)
-    if not res:
-        return False, '\'username\' ' + msg
-    res, msg = check_password(password)
-    if not res:
-        return False, '\'password\' ' + msg
-
     users = db.select('user', limitation={'username': username})
-    if len(users) == 0:
-        return False, 'Invalid username!'
+    if len(users) == 0: return False, 'Invalid username!'
+    user, = users
+    if password != user['password']: return False, 'Invalid password!'
 
-    user = users[0]
-    if encrypt(password) != user['password']:
-        return False, 'Wrong password!'
-
-    cur_time = get_cur_time()
-    cur_ip = request.remote_addr
-
-    login_history = pickle.loads(user.get('history'))
-    login_history.append({
-        'time': cur_time,
-        'ip': cur_ip,
-    })
-
-    login_history = pickle.dumps(login_history[-10:])
-    user['history'] = login_history
-
-    db.upd_row('user', limitation={'id': user['id']}, \
-            data=user)
 
     session['login'] = {
+        'id': user['id'],
         'username': username,
-        'nickname': user.get('nickname', ''),
-        'login_time': time.time(),
-        'ip': cur_ip,
     }
-    return True, 'login successfully'
+    add_log('{} login from {} at {} {}.'.format(username,\
+            request.remote_addr, get_cur_time(), time.tzname[0]), user_id=user['id'])
+    return True, 'Login successfully!'
     
-def _register(username='', password='', nickname='', code='', login=False):
-    if nickname == '':
-        nickname = username
-    res, msg = check_username(username)
-    if not res:
-        return False, '\'username\' ' + msg
-    res, msg = check_password(password)
-    if not res:
-        return False, '\'password\' ' + msg
-    res, msg = check_param(nickname, pattern=re_all, min_len=1)
-    if not res:
-        return False, '\'nickname\' ' + msg
-    res, msg = check_param(code, pattern=re_all, min_len=0)
-    if not res:
-        return False, '\'code\' ' + msg
-    if not valid_code(code):
-        return False, 'not valid code'
+def _register(username='', password='', code='', login=False):
+    res, msg = check_param(username, 'Username',\
+            pattern=re_normal, min_len=2, max_len=32)
+    if not res: return False, msg
 
-    if db.count('user', limitation={'username': username}) > 0:
-        return False, 'username \'{}\' already exists'.format(username)
+    res, msg = check_param(password, 'Password',\
+            pattern=re_all, min_len=6, max_len=32)
+    if not res: return False, msg
+
+    if not valid_code(code): return False, 'Invalid invitation code.'
 
     try:
         res = db.add_row('user', data={
             'username': username,
             'password': password,
             'code': code,
-            'nickname': nickname,
             'level': 0,
-            'history': pickle.dumps([]),
         })
-    except:
-        return False, 'username \'{}\' already exists'.format(username)
-    if login == 'false':
-        return True, 'register successfully' 
-    status, msg = _login(username, password)
-    return status, 'register successfully. ' + msg
+        user, = db.select('user', limitation={'username': username})
+        add_log('{} register from {} at {} {}.'.format(username,\
+                request.remote_addr, get_cur_time(), time.tzname[0]), user_id=user['id'])
+    except Exception as e:
+        raise(e)
 
+    status, msg = True, 'Register successfully!' 
+    if login == 'true': status, msg = _login(username, password)
+    return status, msg
+
+logout_msg = '''
+<div class="alert alert-success" role="alert">Log out! Bye~
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">×</span>
+    </button>
+</div>
+'''
 
 
 @app.route('/logout', methods=["GET"])
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('login', logout=1))
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -114,7 +81,9 @@ def login():
         data = request.form.to_dict()
         status, msg = _login(**data)
         return jsonify({'ok': status, 'msg': msg})
-    return html('login.html')
+    print(request.args.get('logout'))
+    msg = logout_msg if request.args.get('logout', '0') == '1' else ''
+    return html('login.html', msg=msg)
 
 
 @app.route('/register', methods=['POST', 'GET'])

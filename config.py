@@ -2,18 +2,31 @@ from utils.database import DataBase
 
 
 __tables__ = [{
-        "name": "global",
-        "attr": [{
-                "key": "name",
-                "db_type": "TEXT UNIQUE NOT NULL",
+        'name': 'global',
+        'attr': [{
+                'key': 'name',
+                'db_type': 'TEXT UNIQUE NOT NULL',
             }, {
-                "key": "value",
-                "db_type": "BLOB",
+                'key': 'value',
+                'db_type': 'BLOB',
             }, {
-                "key": "valid",
-                "db_type": "FLOAT",
+                'key': 'valid',
+                'db_type': 'FLOAT',
             }
         ]
+    }, {
+        'name': 'code',
+        'attr': [{
+                'key': 'id',
+                'db_type': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            }, {
+                'key': 'code',
+                'db_type': 'TEXT NOT NULL'
+            }, {
+                'key': 'valid',
+                'db_type': 'FLOAT'
+            },
+        ],
     }, {
         'name': 'user',
         'attr': [{
@@ -26,20 +39,34 @@ __tables__ = [{
                 'key': 'password',
                 'db_type': 'TEXT NOT NULL',
             }, {
-                'key': 'nickname',
-                'db_type': 'TEXT',
-            }, {
                 'key': 'code',
                 'db_type': 'TEXT',
-            }, {
-                'key': 'history',
-                'db_type': 'BLOB',
             }, {
                 'key': 'level',
                 'db_type': 'INTEGER',
             }
+        ], 'extra': [
+            'FOREIGN KEY (code) REFERENCES code(code)',
         ]
-    }
+    }, {
+        'name': 'log',
+        'attr': [{
+                'key': 'id',
+                'db_type': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            }, {
+                'key': 'content',
+                'db_type': 'TEXT',
+            }, {
+                'key': 'user_id',
+                'db_type': 'INTEGER',
+            }, {
+                'key': 'time',
+                'db_type': 'FLOAT',
+            },
+        ], 'extra': [
+            'FOREIGN KEY (user_id) REFERENCES user(id)',
+        ],
+    }, 
 ]
 
 
