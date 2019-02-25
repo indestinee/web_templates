@@ -1,0 +1,166 @@
+{% extends "templates.html" %}
+
+{% block header %}
+<title>Dashboard</title>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="dashboard_graph">
+        <div class="row x_title">
+            <div class="col-md-6">
+                <h3>CPU</h3>
+            </div>
+        </div>
+        <div class="col-md-9 col-sm-9 col-xs-12">
+            <div id="placeholder33" style="height: 260px; display: none" class="demo-placeholder"></div>
+            <div style="width: 100%;">
+                <div id="canvas_dahs" class="demo-placeholder" style="width: 100%; height: 270px; padding: 0px; position: relative;">
+                    <canvas class="flot-base" width="844" height="270" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 844px; height: 270px;"></canvas>
+                    <canvas class="flot-overlay" width="844" height="270" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 844px; height: 270px;"></canvas>
+                    <div class="flot-text" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; font-size: smaller; color: rgb(84, 84, 84);">
+                        <div class="flot-x-axis flot-x1-axis xAxis x1Axis" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; display: block;">
+                            <div class="flot-tick-label tickLabel" style="position: absolute; max-width: 105px; top: 253px; left: 52px; text-align: center;">1</div>
+                            <div class="flot-tick-label tickLabel" style="position: absolute; max-width: 105px; top: 253px; left: 186px; text-align: center;">2</div>
+                            <div class="flot-tick-label tickLabel" style="position: absolute; max-width: 105px; top: 253px; left: 319px; text-align: center;">3</div>
+                            <div class="flot-tick-label tickLabel" style="position: absolute; max-width: 105px; top: 253px; left: 452px; text-align: center;">4</div>
+                            <div class="flot-tick-label tickLabel" style="position: absolute; max-width: 105px; top: 253px; left: 585px; text-align: center;">5</div>
+                            <div class="flot-tick-label tickLabel" style="position: absolute; max-width: 105px; top: 253px; left: 718px; text-align: center;">6</div>
+                        </div>
+                        <div class="flot-y-axis flot-y1-axis yAxis y1Axis" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; display: block;">
+                            {% for i in range(11) %}
+                            <div class="flot-tick-label tickLabel" style="position: absolute; top: {{240-i*24}}px; left: {{1 if i > 9 else 8 if i > 0 else 14}}px; text-align: right;">{{i*10}}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-12 bg-white" id="cpu_tables">
+
+        </div>
+
+
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+<!-- flot js -->
+<!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
+<script type="text/javascript" src="/static/js/flot/jquery.flot.js"></script>
+<script type="text/javascript" src="/static/js/flot/jquery.flot.pie.js"></script>
+<script type="text/javascript" src="/static/js/flot/jquery.flot.orderBars.js"></script>
+<script type="text/javascript" src="/static/js/flot/jquery.flot.time.min.js"></script>
+<script type="text/javascript" src="/static/js/flot/date.js"></script>
+<script type="text/javascript" src="/static/js/flot/jquery.flot.spline.js"></script>
+<script type="text/javascript" src="/static/js/flot/jquery.flot.stack.js"></script>
+<script type="text/javascript" src="/static/js/flot/curvedLines.js"></script>
+<script type="text/javascript" src="/static/js/flot/jquery.flot.resize.js"></script>
+<script>
+    plt_datas = [];
+    plt_colors = [];
+    plt_nums = 0;
+    function draw() {
+        $("#canvas_dahs").length && $.plot($("#canvas_dahs"), plt_datas, {
+            series: {
+                lines: {
+                    show: false,
+                    fill: true
+                },
+                splines: {
+                    show: true,
+                    tension: 0.4,
+                    lineWidth: 1,
+                    fill: 0.4
+                },
+                points: {
+                    radius: 0,
+                    show: true
+                },
+                shadowSize: 2
+            },
+            grid: {
+                verticalLines: true,
+                hoverable: true,
+                clickable: true,
+                tickColor: "#d5d5d5",
+                borderWidth: 1,
+                color: '#fff'
+            },
+            colors: plt_colors,
+            xaxis: {
+                tickColor: "rgba(51, 51, 51, 0.06)",
+                ticks: 8,
+            },
+            yaxis: {
+                ticks: 8,
+                tickColor: "rgba(51, 51, 51, 0.06)",
+            },
+            tooltip: false
+        });
+    }
+</script>
+<script>
+    function random_color(){
+        var r = Math.floor(Math.random()*256);
+        var g = Math.floor(Math.random()*256);
+        var b = Math.floor(Math.random()*256);
+        return 'rgba('+ r +','+ g +','+ b +',0.38)';
+    }
+    cnt = 0;
+    function ps() {
+        $.ajax({
+            url: '/ps',
+            type: 'get',
+            dataType: 'json',
+            success: function(res) {
+                cnt = cnt + 1;
+                var cpu_tables = '';
+                var s = Math.floor(res.time+8*3600)%86400;
+                var h = Math.floor(s / 3600);
+                var m = Math.floor(s / 60) % 60;
+                s %= 60;
+                var time = h + ':' + m + ':' + s;
+                var n = res.data.cpu.length;
+                while (plt_nums < n) {
+                    plt_nums += 1;
+                    plt_colors.push(random_color());
+                    plt_datas.push([[0, 0]]);
+                }
+                for (var cpu in res.data.cpu) {
+                    var usg = res.data.cpu[cpu];
+                    plt_datas[cpu].push([cnt, Math.round(usg)]);
+                    if (plt_datas[cpu].length > 20) {
+                        plt_datas[cpu].shift();
+                    }
+                    var color = "green";
+                    if (usg > 70) {
+                        color = "red";
+                    } else if (usg > 40) {
+                        color = "orange";
+                    }
+                    cpu_tables += `
+                        <div class="">
+                            CPU${cpu}: ${usg}%
+                            <div class="progress progress_sm" style="width: 100%;">
+                                <div class="progress-bar bg-${color}" role="progressbar" data-transitiongoal="80" aria-valuenow="79" style="width: ${usg}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                $("#cpu_tables").html(
+                    cpu_tables
+                );
+                if (cnt > 2) {
+                    draw();
+                }
+            },
+            error: function() {
+
+            }
+        });
+    }
+    ps();
+    setInterval("ps()", 2000);
+</script>
+{% endblock %}

@@ -1,64 +1,165 @@
-{% extends 'sign_templates.html' %}
-{% block header %}
-<link href="/static/css/signin.css" rel="stylesheet">
-<title>Sign In</title>
-{% endblock %}
-{% block form %}
-<form class="form-signin" action="servlet" method="post" onsubmit="return submit_form();">
-    <h1 class="h3 mb-3 font-weight-normal">Sign In</h1>
-    <label for="username" class="sr-only">Username</label>
-    <input type="username" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
-    <label for="password" class="sr-only">Password</label>
-    <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
-    <div id="msg" class="msg">{{msg|safe}}</div>
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
-    <script>
-        function heredoc(fn) {
-           return fn.toString().split('\n').slice(1,-1).join('\n') + '\n';
-        }           
-        function submit_form() {
-            $.ajax({
-                type: "POST",
-                url: "/login",
-                dataType: 'json',
-                data: {
-                    username: $("#username").val(),
-                    password: $("#password").val(),
-                },
-                success: function(res) {
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Log In</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/fonts/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/animate.min.css" rel="stylesheet">
+    <link href="/static/css/custom.css" rel="stylesheet">
+    <link href="/static/css/icheck/flat/green.css" rel="stylesheet">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+  </head>
+
+  <body style="background:#F7F7F7;">
+    <div class="">
+      <a class="hiddenanchor" id="toregister"></a>
+      <a class="hiddenanchor" id="tologin"></a>
+      <div id="wrapper">
+        <div id="login" class="animate form">
+          <section class="login_content">
+            <form id="login_form" class="form-signin" action="servlet" method="POST" onsubmit="return login();">
+              <h1><i class="fa fa-paw" style="font-size: 26px;"></i> Login Form</h1>
+              <div>
+                <input type="text" class="form-control" name="username" placeholder="Username" required="required" />
+              </div>
+              <div>
+                <input type="password" class="form-control" name="password" placeholder="Password" required="required" />
+              </div>
+              <div id="login_msg" style="text-shadow:none;">{{msg|safe}}</div>
+              <div>
+                <button class="btn btn-default submit" style="width:80px;height=61px">Log In</button>
+              </div>
+              <div class="clearfix"></div>
+              <div class="separator">
+                <p class="change_link">New to site?
+                <a href="#toregister" class="to_register"> Create Account </a>
+                </p>
+                <div class="clearfix"></div>
+                <br />
+                <div>
+                </div>
+              </div>
+            </form>
+            <script>
+              function login() {
+                $.ajax({
+                  type: "POST",
+                  url: "/login",
+                  dataType: 'json',
+                  data: $("#login_form").serialize(),
+                  success: function(res) {
                     if (res.ok) {
-                        $("#msg").html(`
-                            <div class="alert alert-success" role="alert">
-                                ${res.msg}
-                            </div>
-                            <meta http-equiv="refresh" content="1;url=/">
+                      $("#login_msg").html(`
+                        <div class="alert alert-success alert-dismissible fade in" role="alert">
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                          ${res.msg}
+                        </div>
+                        <meta http-equiv="refresh" content="1;url=/">
                         `);
                     } else {
-                        $("#msg").html(`
-                            <div class="alert alert-danger" role="alert">
-                                ${res.msg}
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        `);
+                      $("#login_msg").html(`
+                        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                          ${res.msg}
+                        </div>
+                      `);
                     }
-                },
-                error: function() {
-                    $("#msg").html(`
-                        <div class="alert alert-danger" role="alert">
-                            cannot reach server, try again.
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                  },
+                  error: function() {
+                    $("#login_msg").html(`
+                        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                          cannot reach server, try again.
                         </div>
                     `);
-                }
-            });
-            return false;
-        }
-    </script>
-    <br/>
-    <p align="right">Don't have a account? <a href="/register">Sign Up</a></p>
-</form>
-{% endblock %}
+                  }
+                });
+                return false;
+              }
+            </script>
+          </section>
+          <!-- content -->
+        </div>
+        <div id="register" class="animate form">
+          <section class="login_content">
+            <form id="register_form" class="form-signin" action="servlet" method="POST" onsubmit="return register();">
+              <h1><i class="fa fa-paw" style="font-size: 26px;"></i> Create Account</h1>
+              <div>
+                <input type="text" class="form-control" name="username" placeholder="Username" required="required" />
+              </div>
+              <div>
+                <input type="password" class="form-control" name="password" placeholder="Password" required="required" />
+              </div>
+              <div>
+                <input type="text" class="form-control" name="code" placeholder="Invitation Code" />
+              </div>
+              <div class="checkbox mb-3">
+                <label>
+                  <input type="checkbox" name="login" checked/> Sign In after Register
+                </label>
+              </div>
+              <div id="register_msg" style="text-shadow:none;">{{msg|safe}}</div>
+              <div>
+                <button class="btn btn-default submit" href="index.html">Submit</button>
+              </div>
+              <div class="clearfix"></div>
+              <div class="separator">
+
+                <p class="change_link">Already a member ?
+                <a href="#tologin" class="to_register"> Log in </a>
+                </p>
+                <div class="clearfix"></div>
+                <br />
+              </div>
+            </form>
+            <script>
+              function register() {
+                var form=$("#register_form");
+                $.ajax({
+                  type: "POST",
+                  url: "/register",
+                  dataType: 'json',
+                  data: $("#register_form").serialize(),
+                  success: function(res) {
+                    if (res.ok) {
+                      $("#register_msg").html(`
+                        <div class="alert alert-success alert-dismissible fade in" role="alert">
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                          ${res.msg}
+                        </div>
+                        <meta http-equiv="refresh" content="1;url=/">
+                      `);
+                    } else {
+                      $("#register_msg").html(`
+                        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                          ${res.msg}
+                        </div>
+                      `);
+                    }
+                  },
+                  error: function() {
+                    $("#register_msg").html(`
+                      <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                      cannot reach server, try again.
+                      </div>
+                      `);
+                  }
+                });
+                return false;
+              }
+            </script>
+            <!-- form -->
+          </section>
+          <!-- content -->
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

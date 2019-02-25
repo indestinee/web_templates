@@ -33,7 +33,7 @@ def _login(username='', password=''):
             request.remote_addr, get_cur_time(), time.tzname[0]), user_id=user['id'])
     return True, 'Login successfully!'
     
-def _register(username='', password='', code='', login=False):
+def _register(username='', password='', code='', login="off"):
     res, msg = check_param(username, 'Username',\
             pattern=re_normal, min_len=2, max_len=32)
     if not res: return False, msg
@@ -55,19 +55,22 @@ def _register(username='', password='', code='', login=False):
         add_log('{} register from {} at {} {}.'.format(username,\
                 request.remote_addr, get_cur_time(), time.tzname[0]), user_id=user['id'])
     except Exception as e:
-        raise(e)
+        return False, '\'{}\' already exists.'.format(username)
+        # raise(e)
 
     status, msg = True, 'Register successfully!' 
-    if login == 'true': status, msg = _login(username, password)
+    if login == 'on': status, msg = _login(username, password)
     return status, msg
 
 logout_msg = '''
-<div class="alert alert-success" role="alert">Log out! Bye~
+<div class="alert alert-success" role="alert">
+    Log out! Bye~
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">×</span>
+        <i class="fa fa-close"></i>
     </button>
 </div>
 '''
+logout_msg = ''
 
 
 @app.route('/logout', methods=["GET"])
@@ -92,5 +95,5 @@ def register():
         data = request.form.to_dict()
         status, msg = _register(**data)
         return jsonify({'ok': status, 'msg': msg})
-    return html('register.html')
+    return redirect('/login#toregister')
 
