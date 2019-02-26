@@ -83,8 +83,11 @@ def get_ps():# {{{
     disks = disk()
     msg, gpus = gpu()
     cpus = psutil.cpu_percent(percpu=True, interval=0.1)
-    try: gpups = query_cuda_usg()
-    except: gpups = []
+    if msg == '':
+        try: gpups = query_cuda_usg()
+        except: gpups = []
+    else:
+        gpups = []
     data = {
         'gpu_msg': msg,
         'gpups': gpups,

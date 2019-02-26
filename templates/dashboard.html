@@ -192,6 +192,9 @@
         },
         tooltip: false
     });
+
+}
+function cpu_draw() {
     $("#canvas_cpu").length && $.plot($("#canvas_cpu"), plt_cpu, {
         series: {
             curvedLines: {
@@ -425,6 +428,7 @@ function ps() {
             $("#gpu_memory_tables").html(gpu_memory_tables);
             $("#cpu_tables").html(cpu_html);
             $("#disk_tables").html(disk_html);
+            cpu_draw();
             var gpu_usg_html = '';
             for (var each in res.data.gpups) {
                 p = res.data.gpups[each];
