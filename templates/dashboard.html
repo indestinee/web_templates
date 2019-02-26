@@ -8,24 +8,6 @@
 <div class="row">
     <div class="x_panel tile">
         <div class="x_title">
-            <h2>General</h2>
-            <ul class="nav navbar-right panel_toolbox">
-                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
-                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
-            </ul>
-            <div class="clearfix"></div>
-        </div>
-        <div class="x_content" style="display:block;">
-            <div class="row" id="general_tables"> </div>
-            <div class="clearfix"></div>
-        </div>
-    </div>
-</div>
-<br/>
-
-<div class="row">
-    <div class="x_panel tile">
-        <div class="x_title">
             <h2>CPU</h2>
             <ul class="nav navbar-right panel_toolbox">
                 <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
@@ -34,18 +16,47 @@
             <div class="clearfix"></div>
         </div>
         <div class="x_content" style="display:block;">
-            <div class="col-md-9 col-sm-9 col-xs-12">
-                <div id="placeholder33" style="height: 260px; display: none" class="demo-placeholder"></div>
-                <div style="width: 100%;">
-                    <div id="canvas_dash" class="demo-placeholder" style="width: 100%; height: 270px; padding: 0px; position: relative;">
-                        <canvas class="flot-base" width="844" height="270" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 844px; height: 270px;"></canvas>
-                        <canvas class="flot-overlay" width="844" height="270" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 844px; height: 270px;"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-3 col-xs-12 bg-white" id="cpu_tables">
-            </div>
+            <div class="row" id="cpu_tables"> </div>
             <div class="clearfix"></div>
+            <div style="width: 100%;">
+                <div id="canvas_cpu" class="demo-placeholder" style="width: 100%; height: 270px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<br/>
+
+<div class="row">
+    <div class="x_panel tile">
+        <div class="x_title">
+            <h2>Disks & Memory</h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content" style="display:block;">
+            <div class="row" id="disk_tables"> </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br/>
+
+
+<div class="row">
+    <div class="x_panel tile">
+        <div class="x_title">
+            <h2>GPU</h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content" style="display:block;" id="gpu">
+
         </div>
     </div>
 </div>
@@ -82,28 +93,30 @@
 <script type="text/javascript" src="/static/js/flot/curvedLines.js"></script>
 <script type="text/javascript" src="/static/js/flot/jquery.flot.resize.js"></script>
 <script>
-    plt_datas = [];
-plt_colors = [];
-plt_font_colors = [];
-plt_nums = 0;
-function draw() {
-    $("#canvas_dash").length && $.plot($("#canvas_dash"), plt_datas, {
+    plt_gpu = [];
+    plt_gpu_memory = [];
+    plt_cpu = [{
+            'data': [], 
+            'label': '  CPU',
+        }, {
+            'data': [], 
+            'label': '  Memory',
+        }
+    ]
+    plt_colors = [
+        'rgba(200,0,0,1)', 'rgba(0,200,0,1)', 'rgba(0,0,200,1)',
+        'rgba(200,200,0,1)', 'rgba(200,0,200,1)', 'rgba(0,200,200,1)',
+    ]
+    plt_font_colors = [];
+    plt_nums = 0;
+    function draw() {
+        $("#canvas_gpu").length && $.plot($("#canvas_gpu"), plt_gpu, {
         series: {
-            lines: {
-                show: false,
-                fill: true
-            },
-            splines: {
-                show: true,
-                tension: 0.4,
-                lineWidth: 1,
-                fill: 0.4
-            },
-            points: {
-                radius: 0,
-                show: true
-            },
-            shadowSize: 2
+            curvedLines: {
+                apply: true,
+                active: true,
+                monotonicFit: true
+            }
         },
         grid: {
             verticalLines: true,
@@ -111,7 +124,95 @@ function draw() {
             clickable: true,
             tickColor: "#d5d5d5",
             borderWidth: 1,
-            color: '#fff'
+            color: '#606060',
+            borderWidth: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+            },
+        },
+        colors: plt_colors,
+        xaxis: {
+            tickColor: "rgba(51, 51, 51, 0.06)",
+            mode: "time",
+            tickSize: [5, "second"],
+            axisLabel: "Seconds",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial',
+            axisLabelPadding: 10
+        },
+        yaxis: {
+            min: 0,
+            max: 100,
+            ticks: 8,
+            tickColor: "rgba(51, 51, 51, 0.06)",
+        },
+        tooltip: false
+    });
+    $("#canvas_gpu_memory").length && $.plot($("#canvas_gpu_memory"), plt_gpu_memory, {
+        series: {
+            curvedLines: {
+                apply: true,
+                active: true,
+                monotonicFit: true
+            }
+        },
+        grid: {
+            verticalLines: true,
+            hoverable: true,
+            clickable: true,
+            tickColor: "#d5d5d5",
+            borderWidth: 1,
+            color: '#606060',
+            borderWidth: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+            },
+        },
+        colors: plt_colors,
+        xaxis: {
+            tickColor: "rgba(51, 51, 51, 0.06)",
+            mode: "time",
+            tickSize: [5, "second"],
+            axisLabel: "Seconds",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial',
+            axisLabelPadding: 10
+        },
+        yaxis: {
+            min: 0,
+            max: 100,
+            ticks: 8,
+            tickColor: "rgba(51, 51, 51, 0.06)",
+        },
+        tooltip: false
+    });
+    $("#canvas_cpu").length && $.plot($("#canvas_cpu"), plt_cpu, {
+        series: {
+            curvedLines: {
+                apply: true,
+                active: true,
+                monotonicFit: true
+            }
+        },
+        grid: {
+            verticalLines: true,
+            hoverable: true,
+            clickable: true,
+            tickColor: "#d5d5d5",
+            borderWidth: 1,
+            color: '#606060',
+            borderWidth: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+            },
         },
         colors: plt_colors,
         xaxis: {
@@ -135,11 +236,12 @@ function draw() {
 }
 </script>
 <script>
+    gpu_begin=true;
     function random_color() {
         var r = Math.floor(Math.random()*256);
         var g = Math.floor(Math.random()*256);
         var b = Math.floor(Math.random()*256);
-        plt_colors.push('rgba('+ r +','+ g +','+ b +',0.38)');
+        plt_colors.push('rgba('+ r +','+ g +','+ b +',1)');
         plt_font_colors.push('rgb('+r+','+g+','+b+')');
     }
 function get_color(x) {
@@ -150,8 +252,17 @@ function get_color(x) {
     return "green";
 }
 
-function add_unite(data) {
-    general_tables
+function concat(tables, split_num) {
+    var tsplit = Math.floor(12/split_num);
+    var num = Math.ceil(tables.length / split_num);
+    var html = '';
+    for (var i = 0; i < split_num; i += 1) {
+        html += `<div class="col-md-${tsplit} col-sm-6 col-xs-12 bg-white">`;
+        for (var j = i * num; j < Math.min(i * num + num, tables.length); j += 1)
+            html += tables[j];
+        html += `</div>`;
+    }
+    return html;
 }
 function ps() {
     $.ajax({
@@ -159,39 +270,79 @@ function ps() {
         type: 'get',
         dataType: 'json',
         success: function(res) {
-            var cpu_tables = '';
-            var general_tables = [];
+            var cpu_tables = [];
+            var disk_tables = [];
+            var gpu_tables= '';
+            var gpu_memory_tables = '';
             var s = Math.round((res.time+8*3600) * 1000);
-            var n = res.data.cpu.length;
-            pack = res
+            var n = res.data.gpu.length;
             while (plt_nums < n) {
+                plt_gpu.push({
+                    'data': [], 
+                    'label': '  '+res.data.gpu[plt_nums].name+' '+plt_nums, 
+                });
+                plt_gpu_memory.push({
+                    'data': [], 
+                    'label': '  '+res.data.gpu[plt_nums].name+' '+plt_nums, 
+                });
                 plt_nums += 1;
-                random_color();
-                plt_datas.push([]);
             }
-            for (var cpu in res.data.cpu) {
-                var usg = res.data.cpu[cpu];
-                plt_datas[cpu].push([s, Math.round(usg)]);
-                if (plt_datas[cpu].length > 10) {
-                    plt_datas[cpu].shift();
-                }
-                var color = get_color(usg);
-                cpu_tables += `
+            while (plt_colors.length < plt_nums) {
+                random_color();
+            } 
+            plt_cpu[0]['data'].push([s, res.data.cpu_mean]);
+            plt_cpu[1]['data'].push([s, res.data.memory.percent]);
+            for (var gpuid in res.data.gpu) {
+                var gpu = res.data.gpu[gpuid];
+
+                plt_gpu[gpuid]['data'].push([s, Math.round(gpu.load)]);
+                plt_gpu_memory[gpuid]['data'].push([s, Math.round(gpu.percent)]);
+                if (plt_gpu[gpuid]['data'].length > 10)
+                    plt_gpu[gpuid]['data'].shift();
+                if (plt_gpu_memory[gpuid]['data'].length > 10)
+                    plt_gpu_memory[gpuid]['data'].shift()
+
+                var color = get_color(gpu.load);
+                gpu_tables += `
                     <div class="">
-                    <div class="row">
+                        <div class="row">
                             <div class="col-md-9 col-sm-9 col-xs-12">
-                                <span style="color:${plt_colors[cpu]};">
-                                    CPU${cpu}:
+                                <span style="color:${plt_colors[gpuid]};">
+                                    ${gpu.name} ${gpuid}: 
                                 </span>
-                                ${usg}%
+                                ${gpu.load}%
                             </div>
                         </div>
                         <div class="progress progress_sm" style="width: 100%;">
-                            <div class="progress-bar bg-${color}" role="progressbar" data-transitiongoal="80" aria-valuenow="79" style="width: ${usg}%;"></div>
+                            <div class="progress-bar bg-${color}" role="progressbar" data-transitiongoal="80" aria-valuenow="79" style="width: ${gpu.load}%;"></div>
                         </div>
                     </div>
                 `;
-                general_tables.push(`
+                var color = get_color(gpu.percent);
+                gpu_memory_tables += `
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <span style="color:${plt_colors[gpuid]};">
+                                    ${gpu.name} ${gpuid}: 
+                                </span>
+                                ${gpu.percent}%
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6" align="right">
+                                <span style="color:${color}">${gpu.used}/${gpu.total}</span>
+                            </div>
+                        </div>
+                        <div class="progress progress_sm" style="width: 100%;">
+                            <div class="progress-bar bg-${color}" role="progressbar" data-transitiongoal="80" aria-valuenow="79" style="width: ${gpu.percent}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            for (var cpu in res.data.cpu) {
+                var usg = res.data.cpu[cpu];
+                color = get_color(usg);
+                cpu_tables.push(`
                     <div class="">
                         <div class="row">
                             <div class="col-md-9 col-sm-9 col-xs-12">
@@ -205,15 +356,14 @@ function ps() {
                 `);
             }
             var color = get_color(res.data.memory.percent);
-            general_tables.push(`
+            disk_tables.push(`
                 <div class="">
                     <div class="row">
-                        <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
                             Memory: <span style="color:${color}">${res.data.memory.percent}%</span>
                         </div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-md-6 col-sm-6 col-xs-6" align="right">
                             <span style="color:${color}">${res.data.memory.used}/${res.data.memory.total}</span>
-                            
                         </div>
                     </div>
                     <div class="progress progress_sm" style="width: 100%;">
@@ -222,15 +372,14 @@ function ps() {
                 </div>
             `);
             var color = get_color(res.data.swap.percent);
-            general_tables.push(`
+            disk_tables.push(`
                 <div class="">
                     <div class="row">
-                        <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
                             Swap: <span style="color:${color}">${res.data.swap.percent}%</span>
                         </div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <span style="color:${color}">${res.data.swap.used}/${res.data.swap.total}</span>
-                            
+                        <div class="col-md-6 col-sm-6 col-xs-6" align="right">
+                            <span style="color:${color};">${res.data.swap.used}/${res.data.swap.total}</span>
                         </div>
                     </div>
                     <div class="progress progress_sm" style="width: 100%;">
@@ -238,27 +387,111 @@ function ps() {
                     </div>
                 </div>
             `);
-            
-            var split_num = 4;
-            var num = Math.ceil(general_tables.length / split_num);
-            var general_html = '';
-            for (var i = 0; i < split_num; i += 1) {
-                general_html += `<div class="col-md-3 col-sm-4 col-xs-12 bg-white" id="general_tables">`;
-                for (var j = i * num; j < Math.min(i * num + num, general_tables.length); j += 1)
-                    general_html += general_tables[j];
-                general_html += `</div>`;
+            for (var i in res.data.disks) {
+                var disk = res.data.disks[i];
+                var color = get_color(disk.percent);
+                disk_tables.push(`
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                ${disk.device}: <span style="color:${color}">${disk.percent}%</span>
+                                ${disk.mountpoint}
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-12" align="right">
+                                <span style="color:${color};">${disk.used}/${disk.total}</span>
+                            </div>
+                        </div>
+                        <div class="progress progress_sm" style="width: 100%;">
+                            <div class="progress-bar bg-${color}" role="progressbar" data-transitiongoal="80" aria-valuenow="79" style="width: ${disk.percent}%;"></div>
+                        </div>
+                    </div>
+                `);
             }
-
-
-            $("#cpu_tables").html(cpu_tables);
-            $("#general_tables").html(general_html);
-            draw();
+            
+            var cpu_html = concat(cpu_tables, 4);
+            var disk_html = concat(disk_tables, 3);
+    
+            if (res.data.gpu.length > 0) {
+                if (gpu_begin) {
+                    gpu_begin = false;
+                    add_canvas();
+                }
+                draw();
+            } else {
+                $("#gpu").html(res.data.gpu_msg);
+                gpu_begin = true;
+            }
+            $("#gpu_tables").html(gpu_tables);
+            $("#gpu_memory_tables").html(gpu_memory_tables);
+            $("#cpu_tables").html(cpu_html);
+            $("#disk_tables").html(disk_html);
+            var gpu_usg_html = '';
+            for (var each in res.data.gpups) {
+                p = res.data.gpups[each];
+                gpu_usg_html += `
+                    <tr>
+                        <th>${p.gpu_id}</th>
+                        <td>${p.pid}</td>
+                        <td>${p.username}</td>
+                        <td>${p.gpu_memory}</td>
+                        <td>${p.memory}</td>
+                    </tr>
+                `;
+            }
+            $("#gpu_usg").html(gpu_usg_html);
         },
         error: function() {
 
         }
     });
 }
+    function add_canvas() {
+        $("#gpu").html(`
+        <div class="row">
+            <h3>GPU Performance</h3>
+            <div class="col-md-9 col-sm-9 col-xs-12">
+                <div id="placeholder33" style="height: 260px; display: none" class="demo-placeholder"></div>
+                <div style="width: 100%;">
+                    <div id="canvas_gpu" class="demo-placeholder" style="width: 100%; height: 270px;"></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-3 col-xs-12 bg-white" id="gpu_tables">
+            </div>
+            <div class="clearfix"></div>
+            <hr/>
+        </div>
+        <div class="row">
+            <h3>GPU Memory</h3>
+            <div class="col-md-9 col-sm-9 col-xs-12">
+                <div id="placeholder33" style="height: 260px; display: none" class="demo-placeholder"></div>
+                <div style="width: 100%;">
+                    <div id="canvas_gpu_memory" class="demo-placeholder" style="width: 100%; height: 270px;"></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-3 col-xs-12 bg-white" id="gpu_memory_tables">
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <h3>GPU Usage</h3>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>GPU</th>
+                        <th>PID</th>
+                        <th>User</th>
+                        <th>GPU Memory</th>
+                        <th>Memory</th>
+                      </tr>
+                    </thead>
+                    <tbody id="gpu_usg">
+                    </tbody>
+                </table>
+            </div>
+        <div class="clearfix"></div>
+        `);
+    }
 ps();
 setInterval("ps()", 5000);
 </script>
