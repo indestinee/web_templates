@@ -23,6 +23,7 @@ def is_login():
 
 @app.before_request
 def check_user():
+    return
     if is_login():
         if request.path in {'/login', '/register'}:
             return redirect(url_for('index'))
