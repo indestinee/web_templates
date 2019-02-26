@@ -84,7 +84,6 @@ def login():
         data = request.form.to_dict()
         status, msg = _login(**data)
         return jsonify({'ok': status, 'msg': msg})
-    print(request.args.get('logout'))
     msg = logout_msg if request.args.get('logout', '0') == '1' else ''
     return html('login.html', msg=msg)
 
