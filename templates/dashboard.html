@@ -283,15 +283,15 @@ function ps() {
             } 
             plt_cpu[0]['data'].push([s, res.data.cpu_mean]);
             plt_cpu[1]['data'].push([s, res.data.memory.percent]);
+            if (plt_cpu[0]['data'].length > 10)
+                plt_cpu[0]['data'].shift()
+            if (plt_cpu[1]['data'].length > 10)
+                plt_cpu[1]['data'].shift()
             for (var gpuid in res.data.gpu) {
                 var gpu = res.data.gpu[gpuid];
 
                 plt_gpu[gpuid]['data'].push([s, Math.round(gpu.load)]);
                 plt_gpu_memory[gpuid]['data'].push([s, Math.round(gpu.percent)]);   
-                if (plt_cpu[0]['data'].length > 10)
-                    plt_cpu[0]['data'].shift()
-                if (plt_cpu[1]['data'].length > 10)
-                    plt_cpu[1]['data'].shift()
                 if (plt_gpu[gpuid]['data'].length > 10)
                     plt_gpu[gpuid]['data'].shift();
                 if (plt_gpu_memory[gpuid]['data'].length > 10)
