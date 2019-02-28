@@ -5,69 +5,63 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="x_panel tile">
-        <div class="x_title">
-            <h2>CPU</h2>
-            <ul class="nav navbar-right panel_toolbox">
-                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
-                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
-            </ul>
-            <div class="clearfix"></div>
+<div class="">
+    <div class="row">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>CPU</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row" id="cpu_tables"> </div>
+                <div style="width: 100%;">
+                    <div id="canvas_cpu" class="demo-placeholder" style="width: 100%; height: 270px;"></div>
+                </div>
+            </div>
         </div>
-        <div class="x_content" style="display:block;">
-            <div class="row" id="cpu_tables"> </div>
-            <div class="clearfix"></div>
-            <div style="width: 100%;">
-                <div id="canvas_cpu" class="demo-placeholder" style="width: 100%; height: 270px;"></div>
+    </div>
+
+    <br/>
+
+    <div class="row">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>GPU</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content" id="gpu"></div>
+        </div>
+    </div>
+    <br/>
+
+
+    <div class="row">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Disks & Memory</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content" style="display:block;">
+                <div class="row" id="disk_tables"></div>
             </div>
         </div>
     </div>
 </div>
-<br/>
-
-<div class="row">
-    <div class="x_panel tile">
-        <div class="x_title">
-            <h2>Disks & Memory</h2>
-            <ul class="nav navbar-right panel_toolbox">
-                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
-                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
-            </ul>
-            <div class="clearfix"></div>
-        </div>
-        <div class="x_content" style="display:block;">
-            <div class="row" id="disk_tables"> </div>
-            <div class="clearfix"></div>
-        </div>
-    </div>
-</div>
-<br/>
-
-
-<div class="row">
-    <div class="x_panel tile">
-        <div class="x_title">
-            <h2>GPU</h2>
-            <ul class="nav navbar-right panel_toolbox">
-                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
-                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
-            </ul>
-            <div class="clearfix"></div>
-        </div>
-        <div class="x_content" style="display:block;" id="gpu">
-
-        </div>
-    </div>
-</div>
-<br/>
 
 
 
-<!-- gauge js -->
-<!-- <script type="text/javascript" src="/static/js/gauge/gauge.min.js"></script> -->
-<!-- <script type="text/javascript" src="/static/js/gauge/gauge_demo.js"></script> -->
-<!-- daterangepicker -->
 
 <!-- flot js -->
 <!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
@@ -80,25 +74,26 @@
 <script type="text/javascript" src="/static/js/flot/jquery.flot.stack.js"></script>
 <script type="text/javascript" src="/static/js/flot/curvedLines.js"></script>
 <script type="text/javascript" src="/static/js/flot/jquery.flot.resize.js"></script>
+<script src="/static/js/pace/pace.min.js"></script>
 <script>
     plt_gpu = [];
-    plt_gpu_memory = [];
-    plt_cpu = [{
-            'data': [], 
-            'label': '  CPU',
-        }, {
-            'data': [], 
-            'label': '  Memory',
-        }
-    ]
-    plt_colors = [
-        'rgba(200,0,0,1)', 'rgba(0,200,0,1)', 'rgba(0,0,200,1)',
-        'rgba(200,200,0,1)', 'rgba(200,0,200,1)', 'rgba(0,200,200,1)',
-    ]
-    plt_font_colors = [];
-    plt_nums = 0;
-    function draw() {
-        $("#canvas_gpu").length && $.plot($("#canvas_gpu"), plt_gpu, {
+plt_gpu_memory = [];
+plt_cpu = [{
+    'data': [], 
+    'label': '  CPU',
+}, {
+    'data': [], 
+    'label': '  Memory',
+}
+]
+plt_colors = [
+    'rgba(200,0,0,1)', 'rgba(0,200,0,1)', 'rgba(0,0,200,1)',
+    'rgba(200,200,0,1)', 'rgba(200,0,200,1)', 'rgba(0,200,200,1)',
+]
+plt_font_colors = [];
+plt_nums = 0;
+function draw() {
+    $("#canvas_gpu").length && $.plot($("#canvas_gpu"), plt_gpu, {
         series: {
             curvedLines: {
                 apply: true,
@@ -228,13 +223,13 @@ function cpu_draw() {
 </script>
 <script>
     gpu_begin=true;
-    function random_color() {
-        var r = Math.floor(Math.random()*256);
-        var g = Math.floor(Math.random()*256);
-        var b = Math.floor(Math.random()*256);
-        plt_colors.push('rgba('+ r +','+ g +','+ b +',1)');
-        plt_font_colors.push('rgb('+r+','+g+','+b+')');
-    }
+function random_color() {
+    var r = Math.floor(Math.random()*256);
+    var g = Math.floor(Math.random()*256);
+    var b = Math.floor(Math.random()*256);
+    plt_colors.push('rgba('+ r +','+ g +','+ b +',1)');
+    plt_font_colors.push('rgb('+r+','+g+','+b+')');
+}
 function get_color(x) {
     if (x > 70)
         return "red";
@@ -402,10 +397,10 @@ function ps() {
                     </div>
                 `);
             }
-            
+
             var cpu_html = concat(cpu_tables, 4);
             var disk_html = concat(disk_tables, 3);
-    
+
             if (res.data.gpu.length > 0) {
                 if (gpu_begin) {
                     gpu_begin = false;
@@ -441,8 +436,8 @@ function ps() {
         }
     });
 }
-    function add_canvas() {
-        $("#gpu").html(`
+function add_canvas() {
+    $("#gpu").html(`
         <div class="row">
             <h3>GPU Performance</h3>
             <div class="col-md-9 col-sm-9 col-xs-12">
@@ -485,9 +480,13 @@ function ps() {
                     </tbody>
                 </table>
             </div>
-        <div class="clearfix"></div>
-        `);
-    }
+            <div class="clearfix"></div>
+        </div>
+    `);
+}
+</script>
+<script>
+    NProgress.done();
 ps();
 setInterval("ps()", 5000);
 </script>
