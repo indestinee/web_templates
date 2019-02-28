@@ -114,7 +114,14 @@
   ]
   plt_font_colors = [];
   plt_nums = 0;
-
+  function tt(x) {
+    var v = Math.max(x - current_time + buff_size * fresh_freq, 0);
+    return x + v;
+  } 
+  function itt(x) {
+    var v = Math.max(x - current_time + buff_size * fresh_freq, 0) / 2;
+    return x - v;
+  }
   function draw() {
     $("#canvas_gpu").length && $.plot($("#canvas_gpu"), plt_gpu, {
       series: {
@@ -142,6 +149,8 @@
       xaxis: {
         tickColor: "rgba(51, 51, 51, 0.06)",
         mode: "time",
+        transform: tt,
+        inverseTransform: itt,  
         axisLabelUseCanvas: true,
         axisLabelFontSizePixels: 12,
         axisLabelFontFamily: 'Verdana, Arial',
@@ -181,6 +190,8 @@
       xaxis: {
         tickColor: "rgba(51, 51, 51, 0.06)",
         mode: "time",
+        transform: tt,
+        inverseTransform: itt,  
         axisLabelUseCanvas: true,
         axisLabelFontSizePixels: 12,
         axisLabelFontFamily: 'Verdana, Arial',
@@ -226,6 +237,8 @@
         mode: "time",
         // tickSize: [1, "minute"],
         // axisLabel: "Minutes",
+        transform: tt,
+        inverseTransform: itt,  
         axisLabelUseCanvas: true,
         axisLabelFontSizePixels: 12,
         axisLabelFontFamily: 'Verdana, Arial',
@@ -268,6 +281,8 @@
       xaxis: {
         tickColor: "rgba(51, 51, 51, 0.06)",
         mode: "time",
+        transform: tt,
+        inverseTransform: itt,  
         // tickSize: [1, "minute"],
         // axisLabel: "Minutes",
         axisLabelUseCanvas: true,
@@ -291,24 +306,23 @@
   }
 </script>
 <script>
-  
+  fresh_freq = 2000;
   queue_size = 32; // must be even number
-  cache_size = queue_size + 8;
+  if (queue_size % 2 == 1)
+    queue_size += 1;
+  buff_size = Math.floor(queue_size / 2);
+  cache_size = queue_size + buff_size;
   gpu_begin = true;
   function fix_len(data) {
     if (data.length < cache_size)
       return data;
-    for (var i = 0; i + 1 < queue_size; i += 2) {
+    for (var i = 0; i + 1 < queue_size; i += 2)
         data[i][1] = (data[i][1] + data[i+1][1]) / 2;
-    }
 
     r = data.filter(function(element, index, self) {
         return index % 2 == 0 || index >= queue_size;
     });
-    console.log(data);
-    console.log(r);
     data = r;
-    console.log(data);
     // data.shift();
     return data;
   }
@@ -369,6 +383,7 @@
         var gpu_tables = '';
         var gpu_memory_tables = '';
         var s = Math.round((res.time + 8 * 3600) * 1000);
+        current_time = s;
         var n = res.data.gpu.length;
         if (typeof pack != "undefined" && res.time == pack.time) {
           pack = res;
@@ -632,6 +647,6 @@
 <script>
   NProgress.done();
   ps();
-  setInterval("ps()", 2000);
+  setInterval("ps()", fresh_freq);
 </script>
 {% endblock %}
