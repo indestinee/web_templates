@@ -124,7 +124,7 @@ def get_ps():
     global ps_list
     t = time.time()
 
-    q_cd = 5
+    q_cd = 1
     if len(ps_list) == 0 or t - ps_list[0] >= q_cd:
         with ps_lock:
             if len(ps_list) == 1 and t - ps_list[0] < q_cd:
