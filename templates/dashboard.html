@@ -240,7 +240,6 @@
       tooltip: false
     });
   }
-  start = new Date().getTime() + 3600 * 8 * 1000;
 
   function net_draw() {
     $("#canvas_net").length && $.plot($("#canvas_net"), plt_net, {
@@ -267,7 +266,6 @@
       },
       colors: plt_colors,
       xaxis: {
-        min: start,
         tickColor: "rgba(51, 51, 51, 0.06)",
         mode: "time",
         // tickSize: [1, "minute"],
@@ -293,8 +291,27 @@
   }
 </script>
 <script>
-  cache_size = 720
+  
+  queue_size = 32; // must be even number
+  cache_size = queue_size + 8;
   gpu_begin = true;
+  function fix_len(data) {
+    if (data.length < cache_size)
+      return data;
+    for (var i = 0; i + 1 < queue_size; i += 2) {
+        data[i][1] = (data[i][1] + data[i+1][1]) / 2;
+    }
+
+    r = data.filter(function(element, index, self) {
+        return index % 2 == 0 || index >= queue_size;
+    });
+    console.log(data);
+    console.log(r);
+    data = r;
+    console.log(data);
+    // data.shift();
+    return data;
+  }
 
   function random_color() {
     var r = Math.floor(Math.random() * 256);
@@ -385,29 +402,24 @@
         plt_net[0]['data'].push([s, speed_sent]);
         plt_net[1]['data'].push([s, speed_recv]);
 
-        if (plt_net[0]['data'].length > cache_size)
-          plt_net[0]['data'].shift();
-        if (plt_net[1]['data'].length > cache_size)
-          plt_net[1]['data'].shift();
+        plt_net[0]['data'] = fix_len(plt_net[0]['data']);
+        plt_net[1]['data'] = fix_len(plt_net[1]['data']);
 
         last_net = [res.data.net.bytes_sent, res.data.net.bytes_recv, res.time];
 
 
         plt_cpu[0]['data'].push([s, res.data.cpu_mean]);
         plt_cpu[1]['data'].push([s, res.data.memory.percent]);
-        if (plt_cpu[0]['data'].length > cache_size)
-          plt_cpu[0]['data'].shift()
-        if (plt_cpu[1]['data'].length > cache_size)
-          plt_cpu[1]['data'].shift()
+        plt_cpu[0]['data'] = fix_len(plt_cpu[0]['data']);
+        plt_cpu[1]['data'] = fix_len(plt_cpu[1]['data']);
+
         for (var gpuid in res.data.gpu) {
           var gpu = res.data.gpu[gpuid];
 
           plt_gpu[gpuid]['data'].push([s, Math.round(gpu.load)]);
           plt_gpu_memory[gpuid]['data'].push([s, Math.round(gpu.percent)]);
-          if (plt_gpu[gpuid]['data'].length > cache_size)
-            plt_gpu[gpuid]['data'].shift();
-          if (plt_gpu_memory[gpuid]['data'].length > cache_size)
-            plt_gpu_memory[gpuid]['data'].shift()
+          plt_gpu[gpuid]['data'] = fix_len(plt_gpu[gpuid]['data']);
+          plt_gpu_memory[gpuid]['data'] = fix_len(plt_gpu_memory[gpuid]['data']);
 
           var color = get_color(gpu.load);
           gpu_tables += `
