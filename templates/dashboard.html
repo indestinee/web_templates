@@ -289,7 +289,6 @@
 
         
         var data = res.data[res.data.length-1].data;
-        var color = get_color(gpu.percent);
         for (var i in data.gpu) {
           var gpu = data.gpu[i];
           gpu_run_table.push(name_value_pattern(`${gpu.name} ${i}`, gpu.load, plt_colors[i]));
@@ -314,7 +313,7 @@
           canvas_draw("#canvas_gpu_mem", gpu_mem_history, plt_colors, max=100);
           canvas_draw("#canvas_gpu_run", gpu_run_history, plt_colors, max=100);
         } else {
-          $("#gpu").html(res.data.gpu_msg);
+          $("#gpu").html(data.gpu_msg);
           gpu_not_set = true;
         }
       

@@ -11,8 +11,9 @@ def add_log(content, user_id=-1):
     db.add_row('log', data={'content': content, 'user_id': user_id, 'time': time.time()})
 
 def run(cmd):# {{{
-    p = Popen(cmd, stdout=PIPE, shell=True)
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
     stdout, stderror = p.communicate()
+    if stderror is not None: raise Exception(stderror.decode('utf-8'))
     return stdout.decode('utf-8')
 # }}}
 
