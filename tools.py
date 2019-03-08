@@ -15,7 +15,7 @@ def add_log(content, user_id=-1):
 def run(cmd):# {{{
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
     stdout, stderror = p.communicate()
-    if stderror is not None: raise Exception(stderror.decode('utf-8'))
+    if stderror is not None and len(stderror) > 0: raise Exception(stderror.decode('utf-8'))
     return stdout.decode('utf-8')
 # }}}
 
@@ -163,6 +163,6 @@ thread.start()
 def get_ps(from_time=None):
     if from_time is None: data = db.select('dashboard', extra='ORDER BY id DESC LIMIT 1')
     else: data = db.select('dashboard', keys="data", limitation='time>{}'.format(from_time), extra='ORDER BY id ASC')
-    for each in data:
-        each['data'] = pickle.loads(each['data'])
+
+    for each in data: each['data'] = pickle.loads(each['data'])
     return data
