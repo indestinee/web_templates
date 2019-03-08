@@ -5,6 +5,8 @@ from utils import procedure
 from subprocess import Popen, PIPE
 from IPython import embed
 
+expired_time = 86400
+
 
 
 def add_log(content, user_id=-1):
@@ -151,6 +153,7 @@ data_collection = DataCollection()
 def auto_update():
     while True:
         data = data_collection.get_data()
+        db.del_row('dashboard', limitation='time<{}'.format(time.time() - expired_time))
         db.add_row('dashboard', data={'data': pickle.dumps(data), 'time': data['time']})
         time.sleep(0.5)
 
