@@ -12,7 +12,9 @@ def dashboard():
 
 @app.route('/ps')
 def ps():
-    return jsonify({'ok': True, 'msg': 'succeed', 'data': get_ps(), 'time': time.time()})
+    try: from_time = float(request.args.get('from_time'))
+    except: from_time = None
+    return jsonify({'ok': True, 'msg': 'succeed', 'data': get_ps(from_time)})
 
 if __name__ == "__main__":
     print(ps(jsonfy=False))

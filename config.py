@@ -66,7 +66,20 @@ __tables__ = [{
         ], 'extra': [
             'FOREIGN KEY (user_id) REFERENCES user(id)',
         ],
-    }, 
+    },  {
+        'name': 'dashboard',
+        'attr': [{
+                'key': 'id',
+                'db_type': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            }, {
+                'key': 'data',
+                'db_type': 'BLOB',
+            }, {
+                'key': 'time',
+                'db_type': 'FLOAT',
+            },
+        ]
+    },
 ]
 
 
