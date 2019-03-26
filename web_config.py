@@ -1,5 +1,5 @@
 import argparse, os
-from utils import *
+from eic_utils import *
 
 
 

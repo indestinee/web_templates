@@ -1,7 +1,7 @@
 from config import db
 import time, psutil, os, threadpool, threading, pickle
 import numpy as np
-from utils import procedure
+from eic_utils import procedure
 from subprocess import Popen, PIPE
 from IPython import embed
 

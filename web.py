@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect,\
         url_for, request, session,\
         send_from_directory, make_response, jsonify
 from web_config import web_cfg
-from utils import *
+from eic_utils import *
 from config import db
 from tools import *
 

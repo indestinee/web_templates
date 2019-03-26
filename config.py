@@ -1,4 +1,4 @@
-from utils.database import DataBase
+from eic_utils.database import DataBase
 
 
 __tables__ = [{
