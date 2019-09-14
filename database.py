@@ -28,6 +28,14 @@ db.create_table('code', [
     'code TEXT',
     'time DOUBLE',
 ])
+db.create_table('download', [
+    'id INTEGER PRIMARY KEY AUTOINCREMENT',
+    'url TEXT',
+    'type TEXT',
+    'path TEXT',
+    'time DOUBLE',
+    'status INT',
+])
 
 users = [{
     'username': 'admin',

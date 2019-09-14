@@ -162,6 +162,8 @@ class DataCollection(object):
         return {'gpups': res}
     # }}}
 
+
+data_collection = DataCollection()
 def auto_update(expired_time=86400):
     while True:
         data = data_collection.get_data()
@@ -182,6 +184,3 @@ def get_runtime_rss(from_time=None):
     return data
 
 
-data_collection = DataCollection()
-thread = threading.Thread(target=auto_update)
-thread.start()

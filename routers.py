@@ -2,7 +2,7 @@ import flask, os
 
 from web import app, html, active_pages_names
 from tools import check_path, run
-import login, ftp, ps
+import login, ftp, ps, shutil
 
 
 @app.route('/')
@@ -38,6 +38,45 @@ def web_ftp():
         flask.abort(404)
     return html('ftp.html', active='ftp')
 
+@app.route('/edit')
+def web_edit():
+    if 'ftp' not in active_pages_names:
+        flask.abort(404)
+    return 'NOT FINISH'
+
+
+@app.route('/upload', methods=['POST'])
+def web_upload():
+    if 'ftp' not in active_pages_names:
+        flask.abort(404)
+    
+    path = flask.request.form.get('path', None)
+    if path is None:
+        return flask.jsonify({'ok': False, 'msg': 'you must specify path'})
+    local_path = check_path(path)
+    filename = flask.request.form.get('filename', None)
+    file1 = flask.request.files.get('file1', None)
+
+    if filename is not None and file1 is not None:
+        save_path = check_path(filename, local_path)
+        file1.save(save_path)
+        return flask.jsonify({'ok': True, 'msg': 'save successfully, path: {}'.format(save_path)})
+
+    url = flask.request.form.get('url', None)
+    t = flask.request.form.get('type', None)
+    if url is not None and t is not None:
+        if t in ['url', 'audio', 'video']:
+            filename = url.split('/')[-1]
+            if len(filename) == 0:
+                filename = 'index.html'
+            index = ftp.download(url, local_path, t)
+            return flask.jsonify({'ok': True, 'msg': '#{} task is downloading'.format(index)})
+    return flask.jsonify({'ok': False, 'msg': 'error, nothing happened'})
+    
+    
+
+
+
 @app.route('/delete', methods=['post'])
 def delete():
     if 'ftp' not in active_pages_names:
@@ -46,21 +85,27 @@ def delete():
     if path is None:
         return flask.jsonify({'ok': False, 'msg': 'you must specify path'})
 
-    path = check_path(path)
+    local_path = check_path(path)
     try:
-        msg = run('rm -rf {}'.format(path))
+        if os.path.islink(local_path):
+            os.unlink(local_path)
+        elif os.path.isfile(local_path):
+            os.remove(local_path)
+        else:
+            msg = shutil.rmtree(local_path)
         return flask.jsonify({'ok': True, 'msg': 'delete successfully'})
     except Exception as e:
         return flask.jsonify({'ok': False, 'msg': '{}'.format(e)})
-        
+
+
 @app.route('/download')
 def download():
     path = flask.request.args.get('path', '.')
-    path = check_path(path)
-    if os.path.isfile(path):
+    local_path = check_path(path)
+    if os.path.isfile(local_path):
         return flask.send_from_directory(
-            os.path.dirname(path),
-            os.path.basename(path),
+            os.path.dirname(local_path),
+            os.path.basename(local_path),
             as_attachment=True
         )
     flask.abort(404)
@@ -71,10 +116,10 @@ def web_get_files():
     if 'ftp' not in active_pages_names:
         flask.abort(404)
     path = flask.request.args.get('path', '.')
-    path = check_path(path)
+    local_path = check_path(path)
     return flask.jsonify({
         'ok': True, 'msg': 'succeed',
-        'data': ftp.get_files(path),
+        'data': ftp.get_files(local_path),
         'path': path
     })
 

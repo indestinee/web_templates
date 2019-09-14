@@ -6,6 +6,7 @@ from eic_utils.base import get_cur_time
 from database import db
 
 expired_time = 86400
+ftp_root = 'ftp'
 
 random_str = lambda n: base64.b64encode(os.urandom(n)).decode('utf-8')
 
@@ -29,7 +30,7 @@ def bytes_trans(x, cnt=0):
         cnt += 1
     return '{:.2f}{}'.format(x, bytes_suffix[cnt])
 
-def check_path(path):
+def check_path(path, prefix=ftp_root):
     paths = []
     for each in path.split('/'):
         if each == '..':
@@ -38,9 +39,6 @@ def check_path(path):
             continue
         paths.append(each)
 
-    if len(paths) == 0:
-        paths = ['.']
-
-    path = '/'.join(paths)
+    path = '/'.join([prefix] + paths)
     return path
 

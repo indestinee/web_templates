@@ -43,7 +43,7 @@ class WebConfig(object):
                     ' -out ./certificate/server-cert.pem -signkey'
                     ' ./certificate/server-key.pem -days 3650'
                 ])
-                run(cmd)
+                os.system(cmd)
             self.app_params['ssl_context'] = (public_cert, private_cert)
 
 web_cfg = WebConfig()
