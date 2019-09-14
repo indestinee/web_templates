@@ -6,8 +6,6 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {% block header %}
-        {% endblock %}
 
         <!-- Bootstrap core CSS -->
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
@@ -24,6 +22,8 @@
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/nprogress.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
+        {% block header %}
+        {% endblock %}
 
 
 
@@ -56,12 +56,11 @@
                         <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                             <div class="menu_section">
                                 <ul class="nav side-menu">
-                                    <li class={{"current-page" if active=="home" else ""}}>
-                                        <a href="/home"><i class="fa fa-home"></i>Home</a>
+                                    {% for page in active_pages %}
+                                    <li class={{"current-page" if active=="{{page['name']}}" else ""}}>
+                                        <a href="/{{page['name']}}"><i class="{{page.get('ico', 'fa fa-desktop')}}"></i>{{page['name']}}</a>
                                     </li>
-                                    <li class={{"current-page" if active=="dashboard" else ""}}>
-                                        <a href="/dashboard"><i class="fa fa-desktop"></i>Dashboard</a>
-                                    </li>
+                                    {% endfor %}
                                 </ul>
                             </div>
                         </div>

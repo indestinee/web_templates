@@ -1,0 +1,167 @@
+{% extends "templates.html" %}
+{% block header %}
+<title>Dashboard</title>
+<link href="/static/js/datatables/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+<link href="/static/js/datatables/buttons.bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="/static/js/datatables/fixedHeader.bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="/static/js/datatables/responsive.bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="/static/js/datatables/scroller.bootstrap.min.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block content %}
+<div class="">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Current Path: <strong><span id="path"></span></strong></h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <h4>Upload</h4>
+                    <hr/>
+                    <p class="text-muted font-13 m-b-30"></p>
+                    <div id="datatable_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                        <table id="datatable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th>Last Modify</th>
+                                    <th>Operations</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th>Last Modify</th>
+                                    <th>Operations</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div id="custom_notifications" class="custom-notifications dsp_none">
+                            <ul class="list-unstyled notifications clearfix" data-tabbed_notifications="notif-group">
+                            </ul>
+                            <div class="clearfix"></div>
+                            <div id="notif-group" class="tabbed_notifications"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- bootstrap progress js -->
+<script src="/static/js/progressbar/bootstrap-progressbar.min.js"></script>
+<script src="/static/js/nicescroll/jquery.nicescroll.min.js"></script>
+<!-- icheck -->
+<script src="/static/js/icheck/icheck.min.js"></script>
+
+<script src="/static/js/custom.js"></script>
+
+
+<!-- Datatables -->
+<!-- <script src="/static/js/datatables/js/jquery.dataTables.js"></script>
+<script src="/static/js/datatables/tools/js/dataTables.tableTools.js"></script> -->
+
+<!-- Datatables-->
+<script src="/static/js/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/js/datatables/dataTables.bootstrap.js"></script>
+<script src="/static/js/datatables/dataTables.buttons.min.js"></script>
+<script src="/static/js/datatables/buttons.bootstrap.min.js"></script>
+<script src="/static/js/datatables/jszip.min.js"></script>
+<script src="/static/js/datatables/pdfmake.min.js"></script>
+<script src="/static/js/datatables/vfs_fonts.js"></script>
+<script src="/static/js/datatables/buttons.html5.min.js"></script>
+<script src="/static/js/datatables/buttons.print.min.js"></script>
+<script src="/static/js/datatables/dataTables.fixedHeader.min.js"></script>
+<script src="/static/js/datatables/dataTables.keyTable.min.js"></script>
+<script src="/static/js/datatables/dataTables.responsive.min.js"></script>
+<script src="/static/js/datatables/responsive.bootstrap.min.js"></script>
+<script src="/static/js/datatables/dataTables.scroller.min.js"></script>
+
+
+<!-- pace -->
+<script src="/static/js/pace/pace.min.js"></script>
+<script type="text/javascript">
+    file_path='.'
+    function modify_path(path) {
+        file_path = file_path + '/' + path;
+        table.ajax.reload(null, false);
+    }
+    $("#path").html(file_path);
+    function delete_file(path) {
+        $.ajax({
+            type: 'POST',
+            url: '/delete',
+            data: {'path': path,}, 
+            success: function (data) {
+                if (data.ok) {
+                    table.ajax.reload(null, false);
+                } else {
+                    alert(data.msg)
+                }
+            },
+            dataType: 'json',
+            error: function (data) {
+                alert('connect server error, please try again');
+            }
+        })
+    }
+    function download_file(path) {
+        window.location.href = `/download?path=${path}`;
+    }
+    $(document).ready(function() {
+        table = $('#datatable').DataTable({
+            "ajax": {
+                "url": "/get_files",
+                "data": function(d) {
+                    d.path = file_path;
+                },
+                "type": "GET",
+                "dataSrc": function(json) {
+                    file_path = json.path;
+                    $("#path").html(file_path);
+                    return json.data;
+                },
+            },
+            "columns": [{
+                    "data": "name", 
+                    "render": function(data, type, row, meta) {
+                        if (type === 'display') {
+                            var res = '<i class="fa fa-times" aria-hidden="true"></i>';
+                            if (row.type == 'file')
+                                res = '<i class="fa fa-file-text-o" aria-hidden="true"></i>';
+                            if (row.type == 'dir')
+                                res = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
+                            if (row.type == 'link')
+                                res = '<i class="fa fa-external-link" aria-hidden="true"></i>';
+                            if (row.type == "dir")
+                                data = res + `<span style="cursor:pointer" onclick="modify_path('${data}')">${data}</span>`;
+                            if (row.type == "file" || row.type == "link") {
+                                data = res + `<a href="/edit?path=${file_path}/${data}">${data}</a>`;
+                            }
+                        }
+                        return data;
+                    }
+                },
+                { "data": "size" },
+                { "data": "last_modify" },
+                { "data": "operation",
+                    "render": function(data, type, row, meta) {
+                        var del = `<i class="fa fa-times" style="cursor:pointer" aria-hidden="true" onclick="delete_file('${file_path}/${row.name}')"></i>`;
+                        var down = `<i class="fa fa-download" style="cursor:pointer" aria-hidden="true" onclick="download_file('${file_path}/${row.name}')"></i>`;
+                        var res = del;
+                        if (row.type == 'file' || row.type == 'link')
+                            res += '&nbsp;&nbsp;&nbsp;&nbsp;' + down;
+                        return res;
+                    }
+                },
+            ]
+        });
+    });
+</script>
+{% endblock %}
